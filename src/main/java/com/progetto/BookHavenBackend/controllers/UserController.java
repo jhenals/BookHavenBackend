@@ -34,8 +34,8 @@ public class UserController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody @Valid User user) throws MailUserAlreadyExistsException {
+    @PostMapping("/users/registration")
+    public ResponseEntity<User> registerUser(@RequestBody @Valid User user) throws MailUserAlreadyExistsException {
         try{
             User added= userService.registerUser(user);
             return new ResponseEntity<>(added, HttpStatus.OK);
@@ -46,11 +46,20 @@ public class UserController {
 
     @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
     public void updateUser(@PathVariable long id , @RequestBody User user) throws UserNotFoundException {
-        userService.updateUser(id, user);
+        try{
+            userService.updateUser(id, user);
+        }catch(UserNotFoundException e){
+           throw new UserNotFoundException();
+        }
+
     }
 
-    @RequestMapping(value="/users/{id}", method= RequestMethod.DELETE)
-    public void deleteUser(@PathVariable long id){
-        userService.deleteUser(id);
+    @RequestMapping(value="/deleteuser/{id}", method= RequestMethod.DELETE)
+    public void deleteUser(@PathVariable long id) throws  UserNotFoundException{
+        try{
+            userService.deleteAccountById(id);
+        }catch(UserNotFoundException e){
+            throw new UserNotFoundException();
+        }
     }
 }

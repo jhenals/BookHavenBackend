@@ -7,15 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "utente")
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-
-    @Column(name = "username")
-    private String username;
 
     @Column(name = "email")
     private String email;
@@ -24,7 +21,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "roleName", nullable = false)
+    @Column(name = "role_name")
     private Role role;
 
     @Column(name = "firstname")

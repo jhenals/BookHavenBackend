@@ -52,9 +52,13 @@ public class UserService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public void deleteUser(long id){
-        userRepository.deleteById(id);
+    public void deleteAccountById(long id) throws UserNotFoundException {
+        Optional<User> userOptional= Optional.ofNullable(userRepository.findById(id));
+        if( userOptional.isPresent() ){
+            userRepository.deleteById(id);
+        }else {
+            throw new UserNotFoundException();
+        }
     }
 
 }

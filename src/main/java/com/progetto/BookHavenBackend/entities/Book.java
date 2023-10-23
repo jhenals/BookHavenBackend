@@ -20,4 +20,12 @@ public class Book {
     @Column(name = "author")
     private String author;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+
 }
