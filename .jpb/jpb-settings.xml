@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DatabaseMigrationSettings" lastSelectedDirectory="..\..\Users\subol\AppData\Roaming\JetBrains\IntelliJIdea2022.3\consoles\db\50522c0d-83fd-4e1a-a399-68402680a4e3" />
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit name="Default">
+        <packages>
+          <package value="com.progetto.BookHavenBackend" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>
