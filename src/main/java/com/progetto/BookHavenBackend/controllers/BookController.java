@@ -20,7 +20,7 @@ public class BookController {
     @Autowired
     CategoryService categoryService;
 
-    @GetMapping("/books")
+    @GetMapping("books")
     public List<Book> getAllBooks(){
         return bookService.getAllBooks();
     }
