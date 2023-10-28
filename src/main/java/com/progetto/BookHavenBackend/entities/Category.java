@@ -17,4 +17,8 @@ public class Category {
     @Column(name = "name")
     private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    private Book book;
+
 }

@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -27,5 +32,26 @@ public class Book {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @Column(name = "amazon_reviews", precision = 10, scale = 1)
+    private BigDecimal amazonReviews;
+
+    @Lob
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "`isbn-10`")
+    private Long isbn10;
+
+    @Column(name = "data_pubblicazione")
+    private LocalDate dataPubblicazione;
+
+    @Column(name = "editor")
+    private String editor;
+
+    // @OneToMany(mappedBy = "book", orphanRemoval = true)
+    //private Set<Category> categories = new LinkedHashSet<>();
 
 }
