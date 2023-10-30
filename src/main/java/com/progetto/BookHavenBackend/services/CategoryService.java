@@ -24,8 +24,4 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public List<Book> getAllBooksWithCategory(Category category){
-        return bookRepository.findByCategory(category);
-    }
-
 }

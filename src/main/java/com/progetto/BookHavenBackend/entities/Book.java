@@ -51,6 +51,10 @@ public class Book {
     @Column(name = "editor")
     private String editor;
 
+    @Column(name = "discount", precision = 10, scale = 2)
+    private BigDecimal discount;
+
+
     // @OneToMany(mappedBy = "book", orphanRemoval = true)
     //private Set<Category> categories = new LinkedHashSet<>();
 
