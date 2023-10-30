@@ -46,4 +46,14 @@ public class BookController {
     public List<Book> getAllBooksWithDiscount(){
         return bookService.getAllBooksWithDiscount();
     }
+
+    @GetMapping("/books/recent")
+    public List<Book> getAllRecentlyAddedBooks(){
+        return bookService.getRecentBooks();
+    }
+
+    @GetMapping("/books/best-sellers")
+    public List<Book> getBestSellingBooks(){
+        return bookService.getBestSellingBooks();
+    }
 }

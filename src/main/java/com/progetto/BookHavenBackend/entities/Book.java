@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -53,6 +54,12 @@ public class Book {
 
     @Column(name = "discount", precision = 10, scale = 2)
     private BigDecimal discount;
+
+    @Column(name = "date_book_added", nullable = false)
+    private LocalDate dateBookAdded;
+
+    @Column(name = "number_buyers")
+    private Integer numberOfBuyers;
 
 
     // @OneToMany(mappedBy = "book", orphanRemoval = true)
