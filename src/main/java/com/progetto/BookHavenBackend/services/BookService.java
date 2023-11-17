@@ -3,10 +3,12 @@ package com.progetto.BookHavenBackend.services;
 import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.repositories.BookRepository;
 import com.progetto.BookHavenBackend.support.exceptions.BookNotFoundException;
+import jakarta.persistence.Transient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -45,4 +47,5 @@ public class BookService {
         // If there are more than 10 best sellers, return the first 10.
         return bestSellers.size() > 10 ? bestSellers.subList(0, 10) : bestSellers;
     }
+
 }

@@ -29,7 +29,13 @@ public class BookController {
 
     @GetMapping("books")
     public List<Book> getAllBooks(){
-        return bookService.getAllBooks();
+        List<Book> books= bookService.getAllBooks();
+
+        //popolare discountedPrice per ogni libro  prima di inviare su frontend
+        for( Book book: books){
+            book.setDiscountedPrice(book.getDiscountedPrice());
+        }
+        return books;
     }
 
     @GetMapping("/books/{id}")
@@ -42,7 +48,7 @@ public class BookController {
         }
     }
 
-    @GetMapping("/books/discountedbooks")
+    @GetMapping("/books/special-offers")
     public List<Book> getAllBooksWithDiscount(){
         return bookService.getAllBooksWithDiscount();
     }
@@ -56,4 +62,5 @@ public class BookController {
     public List<Book> getBestSellingBooks(){
         return bookService.getBestSellingBooks();
     }
+
 }
