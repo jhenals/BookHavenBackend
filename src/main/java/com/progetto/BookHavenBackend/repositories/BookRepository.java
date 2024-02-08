@@ -18,7 +18,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Book findBookById(@Param("bookId") Long bookId);
 
 
-    @Query("SELECT b FROM Book b WHERE b.discount IS NOT null")
+    @Query("SELECT b FROM Book b WHERE b.discount > 0")
     List<Book> findBooksWithDiscount();
 
     @Query("SELECT b FROM Book b WHERE b.dateBookAdded >= :oneWeekAgo")
@@ -27,6 +27,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b ORDER BY b.numberOfBuyers DESC")
     List<Book> sortByNumberOfBuyers();
 
-     @Query("SELECT b FROM Book b ")
-    List<Book> getDiscountedBooks();
+    @Query("SELECT b FROM Book b WHERE b.isInWishlist = TRUE")
+    List<Book> findBooksInWishlist();
 }

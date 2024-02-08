@@ -6,10 +6,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -27,8 +24,8 @@ public class Book {
     @Column(name = "author")
     private String author;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "book_cover_url")
+    private String bookCoverUrl;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -37,15 +34,9 @@ public class Book {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "amazon_reviews", precision = 10, scale = 1)
-    private BigDecimal amazonReviews;
-
     @Lob
     @Column(name = "description")
     private String description;
-
-    @Column(name = "`isbn-10`")
-    private Long isbn10;
 
     @Column(name = "data_pubblicazione")
     private LocalDate dataPubblicazione;
@@ -56,7 +47,7 @@ public class Book {
     @Column(name = "discount", precision = 10, scale = 2)
     private BigDecimal discount;
 
-    @Column(name = "date_book_added", nullable = false)
+    @Column(name = "date_book_added")
     private LocalDate dateBookAdded;
 
     @Column(name = "number_buyers")
@@ -65,7 +56,16 @@ public class Book {
     @Transient
     private BigDecimal discountedPrice;
 
-    //In this example, discountedPrice is marked as @Transient,
+    @Column(name = "is_in_cart")
+    private Boolean isInCart;
+
+    @Column(name = "is_in_wishlist")
+    private Boolean isInWishlist;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+//In this example, discountedPrice is marked as @Transient,
     // indicating that it won't be persisted in the database.
     // The getDiscountedPrice method calculates the discounted price based on the price and discount fields.
 
