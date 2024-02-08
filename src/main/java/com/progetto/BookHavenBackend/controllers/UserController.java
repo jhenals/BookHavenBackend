@@ -8,20 +8,59 @@ import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping(path = "/users")
+    public String getUserInfo(Model model) {
+
+        final DefaultOidcUser user = (DefaultOidcUser) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        String userId = "";
+
+        OidcIdToken token = user.getIdToken();
+
+        Map<String, Object> customClaims = token.getClaims();
+
+        if (customClaims.containsKey("user_id")) {
+            userId = String.valueOf(customClaims.get("user_id"));
+        }
+
+        model.addAttribute("username", user.getName());
+        model.addAttribute("userID", userId);
+        return "userInfo";
+    }
+
+
+
+
+
+    @PreAuthorize("hasRole('client_admin')")
     public List<User> getAllUsers(){
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('client_admin')")
+    public String helloAdmin(){
+        return "Hello, admin";
     }
 
     @GetMapping("/users/{id}")
@@ -62,4 +101,5 @@ public class UserController {
             throw new UserNotFoundException();
         }
     }
+
 }

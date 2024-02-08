@@ -5,6 +5,10 @@ import com.progetto.BookHavenBackend.repositories.UserRepository;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,7 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
 
     @Transactional(readOnly=false, propagation= Propagation.REQUIRED)
     public User registerUser( User user ) throws MailUserAlreadyExistsException {
@@ -60,5 +65,6 @@ public class UserService {
             throw new UserNotFoundException();
         }
     }
+
 
 }
