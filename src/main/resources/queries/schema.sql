@@ -20,14 +20,14 @@ CREATE TABLE book
     image_url VARCHAR(255) NULL,
     category_id bigint null,
     price decimal(10, 2) not null,
-    amazon_reviews decimal(10, 1) null,
     description longtext null,
-    `isbn-10` bigint null,
     data_pubblicazione date null,
     editor varchar(255) null,
     discount decimal(10, 2) null,
     date_book_added date not null,
     number_buyers int null,
+    is_in_cart boolean null,
+    is_in_wishlist boolean null,
 
 CONSTRAINT pk_book PRIMARY KEY (id)
 );

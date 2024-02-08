@@ -8,6 +8,9 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -23,14 +26,29 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "order_number")
+    private String orderNumber; //Format ORD00{id}
+
+
     @Column(name = "date_time")
-    private LocalDateTime dateTime;
+    private LocalDateTime dateTime; //make today the default date
 
     @Column(name = "total_amount", precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    //Address
+
+    //paymentMethod
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
+
+
+    @Column(name = "is_archived")
+    private Boolean isArchived;
 
 }
