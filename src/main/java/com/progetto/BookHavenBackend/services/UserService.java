@@ -4,6 +4,9 @@ import com.progetto.BookHavenBackend.entities.User;
 import com.progetto.BookHavenBackend.repositories.UserRepository;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
+import org.keycloak.common.util.CollectionUtil;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,5 +70,39 @@ public class UserService {
         }
     }
 
+    public List<User> mapUsers(List<UserRepresentation> userRepresentations) {
+        List<User> users = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(userRepresentations)){
+            userRepresentations.forEach(userRep -> {
+                users.add(mapUser(userRep));
+            });
+        }
+        return users;
+    }
 
+    private User mapUser(UserRepresentation userRep) {
+        User user= new User();
+        user.setId(userRep.getId());
+        user.setFirstname(userRep.getFirstName());
+        user.setLastname(userRep.getLastName());
+        user.setEmail(userRep.getEmail());
+        return user;
+    }
+
+
+    public UserRepresentation mapUserRep(User user) {
+        UserRepresentation userRep= new UserRepresentation();
+        userRep.setEmail(user.getEmail());
+        userRep.setFirstName(user.getFirstname());
+        userRep.setLastName(user.getLastname());
+        userRep.setEnabled(true);
+        userRep.setEmailVerified(true);
+        List<CredentialRepresentation> creds= new ArrayList<>();
+        CredentialRepresentation cred= new CredentialRepresentation();
+        cred.setTemporary(false);
+        cred.setValue(user.getPassword());
+        creds.add(cred);
+        userRep.setCredentials(creds);
+        return userRep;
+    }
 }
