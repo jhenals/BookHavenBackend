@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,21 +34,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/books/**").permitAll()
                         .requestMatchers("/api/v1/categories/**").permitAll()
-                        //.requestMatchers("/api/v1/cart/**").permitAll()
+                        .requestMatchers("/api/v1/cart/**").hasRole("user")
+                        .requestMatchers("/api/v1/hello/**").hasRole("user")
                         .requestMatchers("/admin/**").hasRole("admin") //ADMIN
                         .anyRequest().authenticated()
                 )
         ;
 
-        http
+       http
                 .oauth2ResourceServer()
                     .jwt()  // i have a jwt that has to be validated using oauth2ResourceServer
                             //i need to add few parmeters or configurations to my application context in order to tell spring what is my resource server; url to validate token -> go to application.properties to add configs
                         .jwtAuthenticationConverter(jwtAuthConverter) // iw want to mention to psring that i want to use my own jwt converter instead of the default on
         ;
 
-        //http.oauth2Login(Customizer.withDefaults())
-        //        .logout(logout -> logout.addLogoutHandler(keycloakLogoutHandler).logoutSuccessUrl("/"));
+
+   //     http
+   //             .logout()
+    //            .logoutSuccessUrl("http://localhost:8080/realms/bookhaven/protocol/openid-connect/logout?redirect_uri=http://localhost:4200/");
+
 
         http
                 .sessionManagement()
@@ -56,6 +61,14 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public DefaultMethodSecurityExpressionHandler msecurity() {
+        DefaultMethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler =
+                new DefaultMethodSecurityExpressionHandler();
+        defaultMethodSecurityExpressionHandler.setDefaultRolePrefix(""); //defaultRolePrefix : ROLE_ . I can remove it in the JwtAuthConverter
+        return defaultMethodSecurityExpressionHandler;
+
+    }
 
 
 }

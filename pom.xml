@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.progetto</groupId>
-	<artifactId>BookHavenBackend</artifactId>.
+	<artifactId>BookHavenBackend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>BookHavenBackend</name>
 	<description>Final project for &quot;Piattaforme Software per Applicazioni su Web&quot; course</description>
@@ -83,6 +83,32 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-servlet-filter-adapter -->
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-servlet-filter-adapter</artifactId>
+			<version>21.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-spring-boot-starter -->
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-spring-boot-starter</artifactId>
+			<version>21.0.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-admin-client -->
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-admin-client</artifactId>
+			<version>21.0.0</version>
+		</dependency>
+
+
+
+
 
 	</dependencies>
 
