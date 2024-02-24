@@ -5,6 +5,7 @@ import com.progetto.BookHavenBackend.services.UserService;
 import com.progetto.BookHavenBackend.support.ResponseMessage;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
+import org.apache.logging.log4j.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,32 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(
+        origins = "http://localhost:4200",
+        allowedHeaders = "*",
+        methods = { RequestMethod.GET }
+)
 @RequestMapping("/api/v1")
 public class UserController {
 
+    @GetMapping("/hello")
+    public Message hello(){
+        var jwt = SecurityContextHolder.getContext().getAuthentication();
+        var message= MessageFormat.format(
+                "Hello {0}! How is it going today? ",
+                jwt.getName()
+        ) ;
+
+        return new Message(message);
+
+    }
+
+    record Message( String message) {};
     @Autowired
     private UserService userService;
 

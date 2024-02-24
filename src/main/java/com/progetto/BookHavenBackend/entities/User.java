@@ -16,9 +16,9 @@ import java.util.List;
 @Table(name = "user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    //@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private String id;
 
     @Column(name = "email",  nullable = false, unique = true)
     @NotEmpty
@@ -29,9 +29,6 @@ public class User {
     @NotEmpty
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role_name")
-    private Role role;
 
     @Column(name = "firstname")
     private String firstname;
@@ -49,19 +46,41 @@ public class User {
         this.lastname= user.getLastname();
         this.email= user.getEmail();
         this.password= user.getPassword();
-        this.role= user.getRole();
     }  //post mapping
 
     public User() {
-
     }
 
+    public void setFirstName(String firstName) {
+        this.firstname= firstName;
+    }
 
-    //@OneToMany(mappedBy="user", cascade=CascadeType.All)
-    //private List<Address> address= new ArrayList<>();
+    public void setLastName(String lastName) {
+        this.lastname=lastName;
+    }
 
-    //@Embedded
-    //@ElementCollection
-    //@CollectionTable(name="payment_information",joinColumns=@JoinColumn(name="user_id"))
-    //private List<PaymentInformation> paymentInformation= new ArrayList<>();
+    public String getFirstName() {
+        return firstname;
+    }
+
+    public String getLastName() {
+        return lastname;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setFirstname(String firstName) {
+        this.firstname= firstName;
+    }
+
+    public void setLastname(String lastName) {
+        this.lastname=lastname;
+    }
+
 }
