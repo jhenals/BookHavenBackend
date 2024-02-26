@@ -72,6 +72,7 @@ public class UserController {
 
 
 
+
     @PreAuthorize("hasRole('client_admin')")
     public List<User> getAllUsers(){
         return userService.getAllUsers();

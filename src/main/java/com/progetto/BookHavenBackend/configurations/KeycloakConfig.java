@@ -2,6 +2,7 @@ package com.progetto.BookHavenBackend.configurations;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -36,11 +37,15 @@ public class KeycloakConfig {
         if(keycloak == null){
             keycloak = KeycloakBuilder
                     .builder().serverUrl(serverUrl).realm(realm)
-                    .clientId(clientId).grantType(grantType).clientSecret(clientSecret)
+                    .clientId(clientId).grantType(grantType)
                     .username(username).password(password)
                     .build();
         }
         return keycloak;
     }
 
+    public RealmResource realm(String realm) {
+        RealmResource realmResource = getKeycloakInstance().realm(realm);
+        return realmResource;
+    }
 }

@@ -7,8 +7,7 @@ import lombok.Setter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -25,8 +24,6 @@ public class User {
     @Email(message = "{errors.invalid_email}")
     private String email;
 
-    @Column(name = "password", nullable = false, unique = true)
-    @NotEmpty
     private String password;
 
 
@@ -39,13 +36,24 @@ public class User {
     @Column(name = "mobile")
     private String mobile;
 
+    @Column(name="address")
+    private String address;
+
+    @Column(name ="createdAt")
     private LocalDateTime createdAt;
+
+    @ElementCollection
+    @Column(name = "role")
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "owner_id"))
+    private Set<String> roles = new LinkedHashSet<>();
 
     public User(User user) {
         this.firstname= user.getFirstname();
         this.lastname= user.getLastname();
         this.email= user.getEmail();
         this.password= user.getPassword();
+        this.roles= user.getRoles();
+        this.address= user.getAddress();
     }  //post mapping
 
     public User() {

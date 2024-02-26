@@ -21,8 +21,4 @@ public class Category {
     private String value;
 
 
-//@ManyToOne
-    //@JoinColumn(name = "book_id")
-    //private Book book;
-
 }
