@@ -5,7 +5,8 @@ public enum OrderStatus {
     PROCESSING("Processing"), //Ordine in fase di elaborazione
     SHIPPED("Shipped"), //Ordine spedito
     DELIVERED("Delivered"), //Ordine consegnato
-    CANCELED("Canceled"); //Ordine annullato
+    CANCELED("Canceled"), //Ordine annullato
+    PAID("Paid"); //Ordine Pagato
 
     private final String status;
 

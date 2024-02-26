@@ -1,13 +1,16 @@
 package com.progetto.BookHavenBackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,18 +29,17 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "order_number")
-    private String orderNumber; //Format ORD00{id}
-
 
     @Column(name = "date_time")
+    @CreationTimestamp
+    @JsonFormat(pattern="dd/MM/yyyy")
     private LocalDateTime dateTime; //make today the default date
 
     @Column(name = "total_amount", precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(name = "receiver_name")
-    private String receiverName;
+    @Column(name = "recipient_name")
+    private String recipientName;
 
     //Address
 
@@ -48,7 +50,28 @@ public class Order {
     private OrderStatus orderStatus;
 
 
+    @OneToMany(mappedBy = "pk.order")
+    private List<OrderBook> orderedBooks = new ArrayList<>();
+
+    @Transient
+    public BigDecimal getTotalOrderPrice(){
+        BigDecimal sum= BigDecimal.valueOf(0);
+        List<OrderBook> orderedBooks = getOrderedBooks();
+        for( OrderBook book: orderedBooks){
+            sum = sum.add(book.getTotalPrice());
+        }
+        return sum;
+    }
+
+    @Transient
+    public int getNUmberOfItems(){
+        return this.orderedBooks.size();
+    }
+
+
     @Column(name = "is_archived")
     private Boolean isArchived;
+
+    // standard getters and setters
 
 }
