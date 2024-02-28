@@ -48,7 +48,7 @@ public class KeycloakService {
         user.setLastName(userRep.getLastName());
         user.setEmail(userRep.getEmail());
         user.setRoles(extractRoles(userRep));
-        user.setCreatedAt(extractCreatedAt(userRep));
+        //user.setCreatedAt(extractCreatedAt(userRep));
         user.setMobile(extractAttribute(userRep,"mobile"));
         user.setAddress(extractAttribute(userRep,"address"));
         return user;

@@ -29,17 +29,13 @@ public class BookController {
     @Autowired
     CategoryService categoryService;
 
-    //CRUD
-    // CREATE book rest api
     @PostMapping("/books")
     public ResponseEntity<ApiResponse> addNewBook(@RequestBody  Book book) {
         bookService.addNewBook(book);
         return new ResponseEntity<>(new ApiResponse(true,  "New book has been added."), HttpStatus.CREATED);
     }
 
-    //READ
     @GetMapping("/books")
-    //@PreAuthorize("hasRole('client_admin')")
     public List<Book> getAllBooks(){
         List<Book> books= bookService.getAllBooks();
 

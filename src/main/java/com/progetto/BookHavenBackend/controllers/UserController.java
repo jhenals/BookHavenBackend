@@ -85,7 +85,7 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable long id) throws UserNotFoundException{
+    public ResponseEntity<User> getUserById(@PathVariable String id) throws UserNotFoundException{
         try{
             User user = userService.getUserById(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -105,7 +105,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
-    public void updateUser(@PathVariable long id , @RequestBody User user) throws UserNotFoundException {
+    public void updateUser(@PathVariable String id , @RequestBody User user) throws UserNotFoundException {
         try{
             userService.updateUser(id, user);
         }catch(UserNotFoundException e){
@@ -115,7 +115,7 @@ public class UserController {
     }
 
     @RequestMapping(value="/deleteuser/{id}", method= RequestMethod.DELETE)
-    public void deleteUser(@PathVariable long id) throws  UserNotFoundException{
+    public void deleteUser(@PathVariable String id) throws  UserNotFoundException{
         try{
             userService.deleteAccountById(id);
         }catch(UserNotFoundException e){

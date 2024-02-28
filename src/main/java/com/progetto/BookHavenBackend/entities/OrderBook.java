@@ -17,13 +17,23 @@ public class OrderBook {
     private OrderBookPK pk;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private Integer quantity; //bookQuantity
 
     public OrderBook (Order order, Book book , Integer quantity){
         pk = new OrderBookPK();
         pk.setOrder(order);
         pk.setBook(book);
         this.quantity = quantity;
+    }
+
+    public OrderBook (Book book , Integer quantity){
+        pk = new OrderBookPK();
+        pk.setOrder(null);
+        pk.setBook(book);
+        this.quantity = quantity;
+    }
+
+    public OrderBook() {
     }
 
     @Transient

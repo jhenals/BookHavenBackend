@@ -40,7 +40,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserById( long id ) throws UserNotFoundException{
+    public User getUserById( String id ) throws UserNotFoundException{
         Optional<User> userOptional= Optional.ofNullable(userRepository.findById(id));
         if(userOptional.isPresent()){
             return userOptional.get();
@@ -49,8 +49,11 @@ public class UserService {
         }
     }
 
+
+
+
     @Transactional(readOnly = false)
-    public void updateUser(long id, User user) throws UserNotFoundException {
+    public void updateUser(String id, User user) throws UserNotFoundException {
         Optional<User> userOptional= Optional.ofNullable(userRepository.findById(id));
         if( userOptional.isPresent() ){
             User newUser= userOptional.get();
@@ -61,7 +64,7 @@ public class UserService {
         }
     }
 
-    public void deleteAccountById(long id) throws UserNotFoundException {
+    public void deleteAccountById(String id) throws UserNotFoundException {
         Optional<User> userOptional= Optional.ofNullable(userRepository.findById(id));
         if( userOptional.isPresent() ){
             userRepository.deleteById(id);

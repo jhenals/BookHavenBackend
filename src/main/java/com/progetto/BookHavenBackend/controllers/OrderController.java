@@ -53,7 +53,7 @@ public class OrderController {
 
         List<OrderBook> orderBooks = new ArrayList<>();
         for( OrderBook ob : orderForm){
-            orderBooks.add(orderBookService.create(new OrderBook(order, bookService.getBookById(ob.getBook().getId()), ob.getQuantity())));
+            orderBooks.add(orderBookService.addBookToCart(new OrderBook(order, bookService.getBookById(ob.getBook().getId()), ob.getQuantity())));
         }
 
         order.setOrderedBooks(orderBooks);
