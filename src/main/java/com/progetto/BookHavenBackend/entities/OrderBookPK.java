@@ -24,7 +24,4 @@ public class OrderBookPK implements Serializable {
     @JoinColumn(name= "book_id")
     private Book book;
 
-    // standard getters and setters
-
-    // hashcode() and equals() methodss
 }

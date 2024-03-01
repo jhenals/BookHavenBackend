@@ -17,4 +17,10 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
             @Param("userId") String userId,
             @Param("pending") OrderStatus pending);
 
+    @Query("SELECT c FROM Cart c WHERE c.id= :cartId AND c.user.id = :userId AND c.orderStatus =: orderStatus")
+    Cart findByIdAndUserIdAndOrderStatus(
+            @Param("cartId") Long cartId,
+            @Param("userId") String userId,
+            @Param("orderStatus") OrderStatus orderStatus
+            );
 }

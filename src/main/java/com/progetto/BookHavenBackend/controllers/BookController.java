@@ -3,11 +3,13 @@ package com.progetto.BookHavenBackend.controllers;
 import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.Category;
 import com.progetto.BookHavenBackend.entities.User;
+import com.progetto.BookHavenBackend.repositories.InventoryRepository;
 import com.progetto.BookHavenBackend.services.BookService;
 import com.progetto.BookHavenBackend.services.CategoryService;
 import com.progetto.BookHavenBackend.support.ResponseMessage;
 import com.progetto.BookHavenBackend.support.common.ApiResponse;
 import com.progetto.BookHavenBackend.support.exceptions.BookNotFoundException;
+import com.progetto.BookHavenBackend.support.exceptions.CustomException;
 import com.progetto.BookHavenBackend.support.exceptions.UpdateFailedException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,16 +28,18 @@ public class BookController {
 
     @Autowired
     BookService bookService;
-
     @Autowired
-    CategoryService categoryService;
+    private InventoryRepository inventoryRepository;
 
+
+    //CREATE
     @PostMapping("/books")
     public ResponseEntity<ApiResponse> addNewBook(@RequestBody  Book book) {
         bookService.addNewBook(book);
         return new ResponseEntity<>(new ApiResponse(true,  "New book has been added."), HttpStatus.CREATED);
     }
 
+    //READ
     @GetMapping("/books")
     public List<Book> getAllBooks(){
         List<Book> books= bookService.getAllBooks();
@@ -45,6 +50,7 @@ public class BookController {
         return books;
     }
 
+    //READ
     @GetMapping("/books/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable long id) throws BookNotFoundException {
         try {
@@ -92,8 +98,16 @@ public class BookController {
         return bookService.getBestSellingBooks();
     }
 
-    @GetMapping("/books/wishlist")
-    public List<Book> getWishlist(){
-        return bookService.getWishlist();
+    //Update book quantity in inventory
+    @RequestMapping(value="/book/{id}", method = RequestMethod.PUT)
+    public void updateBookQuantityInInventory(@PathVariable("id") Long id, Long quantity){
+        try{
+            bookService.updateBookQuantityInInventory(id, quantity);
+        }catch(CustomException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book quantity can not be updated");
+        } catch (BookNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }

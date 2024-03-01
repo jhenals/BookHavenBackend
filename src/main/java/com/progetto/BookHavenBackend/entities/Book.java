@@ -3,10 +3,12 @@ package com.progetto.BookHavenBackend.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -50,20 +52,14 @@ public class Book {
     @Column(name = "date_book_added")
     private LocalDate dateBookAdded;
 
-    @Column(name = "number_buyers")
-    private Integer numberOfBuyers;
-
     @Transient
     private BigDecimal discountedPrice;
 
-    @Column(name = "is_in_cart")
-    private Boolean isInCart;
 
-    @Column(name = "is_in_wishlist")
-    private Boolean isInWishlist;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @Column(name = "quantity")
-    private Integer quantity;
 
 //In this example, discountedPrice is marked as @Transient,
     // indicating that it won't be persisted in the database.
@@ -84,7 +80,19 @@ public class Book {
         }
     }
 
-    // @OneToMany(mappedBy = "book", orphanRemoval = true)
-    //private Set<Category> categories = new LinkedHashSet<>();
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Book book = (Book) o;
+        return getId() != null && Objects.equals(getId(), book.getId());
+    }
 
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

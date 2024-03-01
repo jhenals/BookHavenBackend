@@ -1,14 +1,9 @@
 package com.progetto.BookHavenBackend.entities;
 
-import com.progetto.BookHavenBackend.services.CartService;
-import com.progetto.BookHavenBackend.support.common.ApiResponse;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,11 +27,13 @@ public class Cart {
     @Column(name = "total_price", precision = 19, scale = 2)
     private BigDecimal totalPrice;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cart", orphanRemoval = true)
+    @OneToMany(mappedBy = "cart", orphanRemoval = true)
+    @JsonBackReference
     private List<CartItem> cartItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     private OrderStatus orderStatus;
+
 
 }

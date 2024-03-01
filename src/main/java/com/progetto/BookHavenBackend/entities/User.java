@@ -26,7 +26,6 @@ public class User {
 
     private String password;
 
-
     @Column(name = "firstname")
     private String firstname;
 
@@ -47,6 +46,11 @@ public class User {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "owner_id"))
     private Set<String> roles = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<Book> wishlist = new LinkedHashSet<>();
+
+
+/*
     public User(User user) {
         this.firstname= user.getFirstname();
         this.lastname= user.getLastname();
@@ -55,6 +59,7 @@ public class User {
         this.roles= user.getRoles();
         this.address= user.getAddress();
     }  //post mapping
+*/
 
     public User() {
     }

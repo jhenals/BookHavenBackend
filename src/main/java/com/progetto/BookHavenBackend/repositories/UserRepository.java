@@ -1,7 +1,9 @@
 package com.progetto.BookHavenBackend.repositories;
 
+import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     void deleteById(String id);
+
+
 }

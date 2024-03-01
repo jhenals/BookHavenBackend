@@ -21,14 +21,13 @@ import java.util.Set;
 @Table(name = "order")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
 
     @Column(name = "date_time")
     @CreationTimestamp
@@ -37,13 +36,6 @@ public class Order {
 
     @Column(name = "total_amount", precision = 19, scale = 2)
     private BigDecimal totalAmount;
-
-    @Column(name = "recipient_name")
-    private String recipientName;
-
-    //Address
-
-    //paymentMethod
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
@@ -58,10 +50,17 @@ public class Order {
         BigDecimal sum= BigDecimal.valueOf(0);
         List<OrderBook> orderedBooks = getOrderedBooks();
         for( OrderBook book: orderedBooks){
-            sum = sum.add(book.getTotalPrice());
+           // sum = sum.add(book.getTotalPrice());
         }
         return sum;
     }
+
+    @Column(name = "recipient_name")
+    private String recipientName;
+
+    //Address
+
+    //paymentMethod
 
     @Transient
     public int getNUmberOfItems(){

@@ -1,87 +1,60 @@
 package com.progetto.BookHavenBackend.controllers;
 
+import com.progetto.BookHavenBackend.configurations.KeycloakConfig;
+import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.User;
+import com.progetto.BookHavenBackend.services.AdminService;
+import com.progetto.BookHavenBackend.services.KeycloakService;
 import com.progetto.BookHavenBackend.services.UserService;
 import com.progetto.BookHavenBackend.support.ResponseMessage;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
-import org.apache.logging.log4j.message.Message;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
-@CrossOrigin(
-        origins = "http://localhost:4200",
-        allowedHeaders = "*",
-        methods = { RequestMethod.GET }
-)
-@RequestMapping("/api/v1")
 public class UserController {
 
-    @GetMapping("/hello")
-    public Message hello(){
-        var jwt = SecurityContextHolder.getContext().getAuthentication();
-        var message= MessageFormat.format(
-                "Hello {0}! How is it going today? ",
-                jwt.getName()
-        ) ;
-
-        return new Message(message);
-
-    }
-
-    record Message( String message) {};
     @Autowired
     private UserService userService;
 
-    @GetMapping(path = "/users")
-    public String getUserInfo(Model model) {
+    @Autowired
+    KeycloakConfig keycloakUtil;
 
-        final DefaultOidcUser user = (DefaultOidcUser) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+    @Autowired
+    AdminService adminService;
 
-        String userId = "";
+    @Autowired
+    KeycloakService keycloakService;
 
-        OidcIdToken token = user.getIdToken();
+    @Value("${realm}")
+    private String realm;
 
-        Map<String, Object> customClaims = token.getClaims();
+    @Value("${client-id}")
+    private String clientId;
 
-        if (customClaims.containsKey("user_id")) {
-            userId = String.valueOf(customClaims.get("user_id"));
-        }
-
-        model.addAttribute("username", user.getName());
-        model.addAttribute("userID", userId);
-        return "userInfo";
-    }
-
-
-
-
-
-
-    @PreAuthorize("hasRole('client_admin')")
+    @GetMapping("/keycloak/users")
+    @PreAuthorize("hasRole('ROLE_admin')")
     public List<User> getAllUsers(){
-        return userService.getAllUsers();
+        Keycloak keycloak = keycloakUtil.getKeycloakInstance();
+        List<UserRepresentation> userRepresentations=
+                keycloak.realm(realm).users().list();
+        return keycloakService.mapUsers(userRepresentations);
     }
 
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('client_admin')")
-    public String helloAdmin(){
-        return "Hello, admin";
+    @GetMapping("/{userId}/wishlist")
+    public Set<Book> getWishlist(@PathVariable("userId") String userId){
+        return userService.getWishlist(userId);
     }
 
     @GetMapping("/users/{id}")
@@ -122,5 +95,6 @@ public class UserController {
             throw new UserNotFoundException();
         }
     }
+
 
 }

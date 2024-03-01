@@ -1,5 +1,6 @@
 package com.progetto.BookHavenBackend.services;
 
+import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.User;
 import com.progetto.BookHavenBackend.repositories.UserRepository;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
@@ -16,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -107,5 +106,15 @@ public class UserService {
         creds.add(cred);
         userRep.setCredentials(creds);
         return userRep;
+    }
+
+    public Set<Book> getWishlist(String userId) {
+        Set<Book> wishlist = new LinkedHashSet<>();
+        Optional<User> customerOptional = Optional.ofNullable(userRepository.findById(userId));
+        if(customerOptional.isPresent()){
+            User customer = customerOptional.get();
+            wishlist = customer.getWishlist();
+        }
+        return wishlist;
     }
 }

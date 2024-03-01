@@ -36,18 +36,6 @@ public class OrderBook {
     public OrderBook() {
     }
 
-    @Transient
-    public Book getBook(){
-        return this.pk.getBook();
-    }
 
-    @Transient
-    public BigDecimal getTotalPrice(){
-        return getBook().getPrice().multiply(BigDecimal.valueOf(getQuantity()));
-    }
-
-    // standard getters and setters
-
-    // hashcode() and equals() methods
 
 }

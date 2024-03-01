@@ -24,9 +24,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b WHERE b.dateBookAdded >= :oneWeekAgo")
     List<Book> findRecentBooks(@Param("oneWeekAgo") LocalDate oneWeekAgo);
 
-    @Query("SELECT b FROM Book b ORDER BY b.numberOfBuyers DESC")
+    @Query("SELECT b FROM Inventory b ORDER BY b.numPurchases DESC")
     List<Book> sortByNumberOfBuyers();
-
-    @Query("SELECT b FROM Book b WHERE b.isInWishlist = TRUE")
-    List<Book> findBooksInWishlist();
 }

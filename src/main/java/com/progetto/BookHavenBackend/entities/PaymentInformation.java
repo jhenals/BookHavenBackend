@@ -26,6 +26,6 @@ public class PaymentInformation {
     private LocalDate expirationDate;
 
     @Column(name = "cvv", nullable = false)
-    private String cvv;
+    private String cvv; //make this decrypted
 
 }
