@@ -1,10 +1,12 @@
 package com.progetto.BookHavenBackend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
 public class Cart {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -27,13 +29,18 @@ public class Cart {
     @Column(name = "total_price", precision = 19, scale = 2)
     private BigDecimal totalPrice;
 
-    @OneToMany(mappedBy = "cart", orphanRemoval = true)
-    @JsonBackReference
-    private List<CartItem> cartItems = new ArrayList<>();
+    @OneToMany(mappedBy = "pk.cart")
+    @JsonManagedReference
+    @Valid
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private List<OrderBook> orderBooks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status")
-    private OrderStatus orderStatus;
+    @Column(name = "cart_status")
+    private OrderStatus cartStatus;
+
+    public Cart(){
+    }
 
 
 }

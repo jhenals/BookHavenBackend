@@ -2,10 +2,14 @@ package com.progetto.BookHavenBackend.controllers;
 
 import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.Cart;
-import com.progetto.BookHavenBackend.entities.CartItem;
+import com.progetto.BookHavenBackend.entities.OrderBook;
+import com.progetto.BookHavenBackend.entities.OrderStatus;
+import com.progetto.BookHavenBackend.repositories.CartRepository;
 import com.progetto.BookHavenBackend.services.CartService;
+import com.progetto.BookHavenBackend.services.OrderBookService;
 import com.progetto.BookHavenBackend.support.exceptions.BookNotFoundException;
 import com.progetto.BookHavenBackend.support.exceptions.CustomException;
+import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +25,19 @@ public class CartController {
     @Autowired
     CartService cartService;
 
-    @GetMapping("/{userId}")
-    public Cart getCart( @PathVariable("userId") String userId){
-        return cartService.getCart(userId);
+    @Autowired
+    OrderBookService orderBookService;
+
+    @GetMapping("{userId}")
+    public Cart getPendingCart( @PathVariable("userId") String userId) throws UserNotFoundException {
+        return cartService.getPendingCart(userId);
     }
 
-    @GetMapping("/{userId}/cart-items")
-    public List<CartItem> getCartItems(@PathVariable("userId") String userId){
-        return cartService.getCartItems(userId);
+    @GetMapping("{userId}/cart-items")
+    public List<OrderBook> getItemsInPendingCart( @PathVariable("userId") String userId) throws UserNotFoundException {
+        Cart pendingCart = getPendingCart(userId);
+        return orderBookService.getItemsInUserPendingCart(pendingCart.getId());
     }
-
 
     @PostMapping("/{userId}")
     public ResponseEntity addBookToCart(@RequestBody Book book, @Valid @PathVariable("userId") String userId ) {
@@ -40,6 +47,8 @@ public class CartController {
             throw new RuntimeException(e);
         } catch(CustomException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book can not be added to cart!", e);
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -51,8 +60,17 @@ public class CartController {
             throw new RuntimeException(e);
         } catch(CustomException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book can not be removed from cart!", e);
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
+
+
+
+
+
+/*
+
 
     @RequestMapping(value = "/{userId}/increment-item-quantity", method = RequestMethod.PUT)
     public void incrementBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
@@ -65,10 +83,13 @@ public class CartController {
         cartService.decrementBookQtyInCart(userId, book);
     }
 
+    /*
     @RequestMapping(value = "/{userId}/decrement-item-quantity", method = RequestMethod.PUT)
     public Cart checkout(@PathVariable("userId") String userId, @Valid @RequestBody Cart cart) {
         return cartService.checkout(userId, cart);
     }
+
+     */
 
 
 }

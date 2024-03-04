@@ -12,30 +12,38 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "order_book")
 public class OrderBook {
+
     @EmbeddedId
     @JsonIgnore
     private OrderBookPK pk;
 
     @Column(nullable = false)
-    private Integer quantity; //bookQuantity
+    private Integer quantity;
 
-    public OrderBook (Order order, Book book , Integer quantity){
-        pk = new OrderBookPK();
-        pk.setOrder(order);
-        pk.setBook(book);
-        this.quantity = quantity;
-    }
+    @Column(name = "final_price", precision = 19, scale = 2)
+    private BigDecimal finalPrice;
 
-    public OrderBook (Book book , Integer quantity){
+    public OrderBook(Cart cart, Book book, Integer qty){
         pk = new OrderBookPK();
-        pk.setOrder(null);
+        pk.setCart(cart);
         pk.setBook(book);
-        this.quantity = quantity;
+        this.quantity = qty;
+        this.finalPrice = getBookFinalPrice();
     }
 
     public OrderBook() {
+
     }
 
+    @Transient
+    public Book getBook(){
+        return this.pk.getBook();
+    }
+
+    @Transient
+    public BigDecimal getBookFinalPrice(){
+        return getBook().getDiscountedPrice().multiply(BigDecimal.valueOf(getQuantity()));
+    }
 
 
 }

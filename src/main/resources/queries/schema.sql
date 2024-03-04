@@ -26,8 +26,6 @@ CREATE TABLE book
     discount decimal(10, 2) null,
     date_book_added date not null,
     number_buyers int null,
-    is_in_cart boolean null,
-    is_in_wishlist boolean null,
 
 CONSTRAINT pk_book PRIMARY KEY (id)
 );
@@ -62,18 +60,6 @@ CREATE TABLE order_detail
     CONSTRAINT pk_order_detail PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS review;
-CREATE TABLE review
-(
-    id               BIGINT AUTO_INCREMENT NOT NULL,
-    user_id          BIGINT       NULL,
-    book_id          BIGINT       NULL,
-    rating           INT          NOT NULL,
-    comment          VARCHAR(255) NULL,
-    date_time_review datetime     NULL,
-    CONSTRAINT pk_review PRIMARY KEY (id)
-);
-
 DROP TABLE IF EXISTS user;
 CREATE TABLE user
 (
@@ -97,16 +83,6 @@ CREATE TABLE role
     CONSTRAINT UQ_Roles_Name UNIQUE(name)
 );
 
-DROP TABLE IF EXISTS user_role;
-CREATE TABLE user_role
-(
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL ,
-    role_id BIGINT NOT NULL ,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE  ON UPDATE CASCADE,
-    FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE RESTRICT  ON UPDATE CASCADE,
-    CONSTRAINT UQ_UserRoles_User_Id UNIQUE(user_id)
-);
 
 ALTER TABLE user
     ADD CONSTRAINT uc_user_password UNIQUE (password);
@@ -119,9 +95,3 @@ ALTER TABLE order_detail
 
 ALTER TABLE `order`
     ADD CONSTRAINT FK_ORDER_ON_USER FOREIGN KEY (user_id) REFERENCES user (id);
-
-ALTER TABLE review
-    ADD CONSTRAINT FK_REVIEW_ON_BOOK FOREIGN KEY (book_id) REFERENCES book (id);
-
-ALTER TABLE review
-    ADD CONSTRAINT FK_REVIEW_ON_USER FOREIGN KEY (user_id) REFERENCES user (id);

@@ -1,20 +1,15 @@
 package com.progetto.BookHavenBackend.services;
 
 import com.progetto.BookHavenBackend.entities.*;
-import com.progetto.BookHavenBackend.repositories.BookRepository;
-import com.progetto.BookHavenBackend.repositories.CartItemRepository;
-import com.progetto.BookHavenBackend.repositories.CartRepository;
-import com.progetto.BookHavenBackend.repositories.UserRepository;
+import com.progetto.BookHavenBackend.repositories.*;
 import com.progetto.BookHavenBackend.support.exceptions.BookNotFoundException;
 import com.progetto.BookHavenBackend.support.exceptions.CustomException;
+import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,8 +23,121 @@ public class CartService {
     BookRepository bookRepository;
 
     @Autowired
-    CartItemRepository cartItemRepository;
+    OrderBookRepository orderBookRepository;
 
+    public Cart getPendingCart(String userId) throws UserNotFoundException {
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(userId));
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
+            if (pendingCart == null) {
+                pendingCart = new Cart();
+                pendingCart.setUser(user); // Set the user for the new cart
+                pendingCart.setTotalPrice(BigDecimal.ZERO);
+                pendingCart.setCartStatus(OrderStatus.PENDING);
+                pendingCart = cartRepository.save(pendingCart);
+            }
+            return pendingCart;
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
+    public Cart addBookToCart(Book book, String userId) throws UserNotFoundException, BookNotFoundException {
+        User user = userRepository.findById(userId);
+        Cart pendingCart =  getPendingCart(userId);
+        if(book == null ){
+            throw new BookNotFoundException("Book is required");
+        }
+        Optional<OrderBook> orderBookOptional = Optional.ofNullable(orderBookRepository.findByBookIdAndCartId(book.getId(), pendingCart.getId()));
+        if( orderBookOptional.isPresent() ){
+            throw new CustomException("Book is already present in cart");
+        }else{
+            OrderBook orderBook = new OrderBook(pendingCart, book, 1);
+            orderBookRepository.save(orderBook);
+            pendingCart.getOrderBooks().add(orderBook);
+            pendingCart.setTotalPrice(pendingCart.getTotalPrice().add(orderBook.getBookFinalPrice()));
+            cartRepository.save(pendingCart);
+            return pendingCart;
+        }
+    }
+
+    public Cart removeBookFromCart(Book book, String userId) throws BookNotFoundException, UserNotFoundException {
+        User user = userRepository.findById(userId);
+        Cart pendingCart =  getPendingCart(userId);
+        if(book == null ){
+            throw new BookNotFoundException("Book is required");
+        }
+        Optional<OrderBook> orderBookOptional = Optional.ofNullable(orderBookRepository.findByBookIdAndCartId(book.getId(), pendingCart.getId()));
+        if( orderBookOptional.isPresent() ){
+            OrderBook orderBook = orderBookOptional.get();
+            if (orderBook.getQuantity() == 1) {
+                orderBookRepository.delete(orderBook);
+                pendingCart.getOrderBooks().remove(orderBook);
+                pendingCart.setTotalPrice(pendingCart.getTotalPrice().subtract(orderBook.getBookFinalPrice()));
+            }else{
+                pendingCart.getOrderBooks().remove(orderBook);
+                orderBook.setQuantity(orderBook.getQuantity()-1);
+                orderBook.setFinalPrice(orderBook.getFinalPrice().multiply(BigDecimal.valueOf(orderBook.getQuantity())));
+                orderBookRepository.save(orderBook);
+                pendingCart.getOrderBooks().add(orderBook);
+            }
+            cartRepository.save(pendingCart);
+            return pendingCart;
+        }else{
+            throw new CustomException("Book is not present in cart");
+        }
+    }
+
+
+
+    /*
+
+    public List<OrderBook> getPendingCartItems(String userId){
+        User user = userRepository.findById(userId);
+        Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
+        if( pendingCart == null ){
+            Cart newCart = new Cart();
+            newCart.setId(newCart.getId());
+            newCart.setUser(user);
+            newCart.setTotalPrice(BigDecimal.ZERO);
+            newCart.setCartStatus(OrderStatus.PENDING);
+            newCart.setOrderBooks(new ArrayList<>());
+            pendingCart =  cartRepository.save(newCart);
+        }
+        List<OrderBook> items= orderBookRepository.findAllByCartId(pendingCart.getId());
+        if( items.isEmpty() || items== null){
+            throw new CustomException("Cart is empty");
+        }
+        return items;
+    }
+
+
+
+    public OrderBook addToCart(String userId, Book book) throws BookNotFoundException {
+        Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
+        if (book == null){
+            throw new BookNotFoundException("Book is required");
+        }else{
+            OrderBook orderBook = orderBookRepository.findByBookIdAndCartId(book.getId(), pendingCart.getId());
+            if(orderBook != null){
+                OrderBook newOB = new OrderBook(pendingCart, book, 1);
+                orderBookRepository.save(newOB);
+                pendingCart.getOrderBooks().add(newOB);
+                cartRepository.save(pendingCart);
+                return newOB;
+            }else{
+                throw new CustomException("Book already exist in pending cart");
+            }
+        }
+    }
+
+     */
+
+
+
+
+    /*
 
     @Transactional(readOnly = true)
     public Cart getCart(String userId){
@@ -175,9 +283,16 @@ public class CartService {
         }
     }//decrementBookQtyInCart
 
+     */
+
+
+
+    /*
     public Cart checkout(String userId, Cart cart) {
         Cart cartCheckout = cartRepository.findByIdAndUserIdAndOrderStatus(cart.getId(), userId, OrderStatus.PENDING);
 
         return null;
     }
+
+     */
 }//CartService

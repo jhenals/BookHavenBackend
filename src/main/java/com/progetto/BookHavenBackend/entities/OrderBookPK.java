@@ -14,14 +14,13 @@ import java.io.Serializable;
 @Setter
 @Embeddable
 public class OrderBookPK implements Serializable {
-
     @JsonBackReference
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name="order_id")
-    private Order order;
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name= "book_id")
+    @JoinColumn(name = "book_id")
     private Book book;
 
 }
