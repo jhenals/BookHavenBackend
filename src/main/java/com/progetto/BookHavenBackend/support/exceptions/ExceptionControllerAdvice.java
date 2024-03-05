@@ -4,8 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class ExceptionControllerAdvice {
 
     @ExceptionHandler(value = CustomException.class)
@@ -13,7 +14,7 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-  //  @ExceptionHandler(value = AuthenticationFailException.class)
+  //@ExceptionHandler(value = AuthenticationFailException.class)
   //  public final ResponseEntity<String> handleAuthenticationFailException(AuthenticationFailException exception) {
   //      return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
   //  }
@@ -22,4 +23,6 @@ public class ExceptionControllerAdvice {
     public final ResponseEntity<String> handleCustomException(BookNotFoundException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+
 }

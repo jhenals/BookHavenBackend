@@ -39,6 +39,13 @@ public class CartController {
         return orderBookService.getItemsInUserPendingCart(pendingCart.getId());
     }
 
+    @RequestMapping(value = "/{userId}/reset", method = RequestMethod.PUT)
+    public void resetCart(@PathVariable("userId") String userId) throws UserNotFoundException {
+        Cart pendingCart = getPendingCart(userId);
+        cartService.resetCart(userId, pendingCart.getId());
+
+    }
+
     @PostMapping("/{userId}")
     public ResponseEntity addBookToCart(@RequestBody Book book, @Valid @PathVariable("userId") String userId ) {
         try{
@@ -56,31 +63,27 @@ public class CartController {
     public ResponseEntity removeBookFromCart(@RequestBody Book book, @Valid @PathVariable("userId") String userId ) {
         try{
             return new ResponseEntity<>( cartService.removeBookFromCart(book, userId), HttpStatus.OK);
-        } catch (BookNotFoundException e) {
+        } catch (BookNotFoundException | UserNotFoundException e) {
             throw new RuntimeException(e);
         } catch(CustomException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book can not be removed from cart!", e);
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
-
-
-
-
-/*
-
-
     @RequestMapping(value = "/{userId}/increment-item-quantity", method = RequestMethod.PUT)
-    public void incrementBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
-        cartService.incrementBookQtyInCart(userId, book);
+    public ResponseEntity incrementBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
+        try{
+            return new ResponseEntity<>( cartService.incrementBookQtyInCart(userId, book), HttpStatus.OK);
+        }catch(CustomException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book quantity can not be incremented!", e);
+        }
+
     }
 
 
     @RequestMapping(value = "/{userId}/decrement-item-quantity", method = RequestMethod.PUT)
     public void decrementBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
-        cartService.decrementBookQtyInCart(userId, book);
+        removeBookFromCart(book, userId);
     }
 
     /*
@@ -88,8 +91,6 @@ public class CartController {
     public Cart checkout(@PathVariable("userId") String userId, @Valid @RequestBody Cart cart) {
         return cartService.checkout(userId, cart);
     }
-
      */
-
 
 }

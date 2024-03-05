@@ -28,22 +28,23 @@ public class OrderBook {
         pk.setCart(cart);
         pk.setBook(book);
         this.quantity = qty;
-        this.finalPrice = getBookFinalPrice();
+        this.finalPrice = book.getDiscountedPrice();
     }
 
     public OrderBook() {
 
     }
 
-    @Transient
     public Book getBook(){
         return this.pk.getBook();
     }
 
-    @Transient
+    /*
     public BigDecimal getBookFinalPrice(){
-        return getBook().getDiscountedPrice().multiply(BigDecimal.valueOf(getQuantity()));
+        return this.finalPrice.multiply(BigDecimal.valueOf(getQuantity()));
     }
+
+     */
 
 
 }

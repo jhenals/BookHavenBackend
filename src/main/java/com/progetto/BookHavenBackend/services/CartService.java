@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +27,7 @@ public class CartService {
     @Autowired
     OrderBookRepository orderBookRepository;
 
+    @Transactional(readOnly = true)
     public Cart getPendingCart(String userId) throws UserNotFoundException {
         Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(userId));
         if (optionalUser.isPresent()) {
@@ -32,17 +35,31 @@ public class CartService {
             Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
             if (pendingCart == null) {
                 pendingCart = new Cart();
-                pendingCart.setUser(user); // Set the user for the new cart
+                pendingCart.setUser(user);
                 pendingCart.setTotalPrice(BigDecimal.ZERO);
                 pendingCart.setCartStatus(OrderStatus.PENDING);
                 pendingCart = cartRepository.save(pendingCart);
+            }else{
+                pendingCart.setTotalPrice(calculateTotalPrice(pendingCart.getOrderBooks()));
+                pendingCart = cartRepository.save(pendingCart);
             }
+
             return pendingCart;
         } else {
             throw new UserNotFoundException();
         }
     }
 
+    private BigDecimal calculateTotalPrice(List<OrderBook> cartItems){
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for(OrderBook cartItem : cartItems){
+            totalPrice = totalPrice.add(cartItem.getBook().getDiscountedPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        }
+            return totalPrice;
+    }
+
+
+    @Transactional(readOnly = false)
     public Cart addBookToCart(Book book, String userId) throws UserNotFoundException, BookNotFoundException {
         User user = userRepository.findById(userId);
         Cart pendingCart =  getPendingCart(userId);
@@ -56,12 +73,13 @@ public class CartService {
             OrderBook orderBook = new OrderBook(pendingCart, book, 1);
             orderBookRepository.save(orderBook);
             pendingCart.getOrderBooks().add(orderBook);
-            pendingCart.setTotalPrice(pendingCart.getTotalPrice().add(orderBook.getBookFinalPrice()));
+            pendingCart.setTotalPrice(calculateTotalPrice(pendingCart.getOrderBooks()));
             cartRepository.save(pendingCart);
             return pendingCart;
         }
     }
 
+    @Transactional(readOnly = false)
     public Cart removeBookFromCart(Book book, String userId) throws BookNotFoundException, UserNotFoundException {
         User user = userRepository.findById(userId);
         Cart pendingCart =  getPendingCart(userId);
@@ -74,13 +92,14 @@ public class CartService {
             if (orderBook.getQuantity() == 1) {
                 orderBookRepository.delete(orderBook);
                 pendingCart.getOrderBooks().remove(orderBook);
-                pendingCart.setTotalPrice(pendingCart.getTotalPrice().subtract(orderBook.getBookFinalPrice()));
+                pendingCart.setTotalPrice(pendingCart.getTotalPrice().subtract(orderBook.getBook().getDiscountedPrice()));
             }else{
                 pendingCart.getOrderBooks().remove(orderBook);
                 orderBook.setQuantity(orderBook.getQuantity()-1);
-                orderBook.setFinalPrice(orderBook.getFinalPrice().multiply(BigDecimal.valueOf(orderBook.getQuantity())));
-                orderBookRepository.save(orderBook);
+                orderBook.setFinalPrice(orderBook.getBook().getDiscountedPrice().multiply(BigDecimal.valueOf(orderBook.getQuantity())));
+                orderBook= orderBookRepository.save(orderBook);
                 pendingCart.getOrderBooks().add(orderBook);
+                pendingCart.setTotalPrice(pendingCart.getTotalPrice().subtract(orderBook.getBook().getDiscountedPrice()));
             }
             cartRepository.save(pendingCart);
             return pendingCart;
@@ -89,56 +108,47 @@ public class CartService {
         }
     }
 
-
-
-    /*
-
-    public List<OrderBook> getPendingCartItems(String userId){
-        User user = userRepository.findById(userId);
+    @Transactional(readOnly = false)
+    public OrderBook incrementBookQtyInCart(String userId, Book book) {
         Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
-        if( pendingCart == null ){
-            Cart newCart = new Cart();
-            newCart.setId(newCart.getId());
-            newCart.setUser(user);
-            newCart.setTotalPrice(BigDecimal.ZERO);
-            newCart.setCartStatus(OrderStatus.PENDING);
-            newCart.setOrderBooks(new ArrayList<>());
-            pendingCart =  cartRepository.save(newCart);
-        }
-        List<OrderBook> items= orderBookRepository.findAllByCartId(pendingCart.getId());
-        if( items.isEmpty() || items== null){
-            throw new CustomException("Cart is empty");
-        }
-        return items;
-    }
-
-
-
-    public OrderBook addToCart(String userId, Book book) throws BookNotFoundException {
-        Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
-        if (book == null){
-            throw new BookNotFoundException("Book is required");
+        OrderBook orderBook = orderBookRepository.findByBookIdAndCartId(book.getId(), pendingCart.getId());
+        if (orderBook == null){
+            throw new CustomException("Book is not present in cart");
         }else{
-            OrderBook orderBook = orderBookRepository.findByBookIdAndCartId(book.getId(), pendingCart.getId());
-            if(orderBook != null){
-                OrderBook newOB = new OrderBook(pendingCart, book, 1);
-                orderBookRepository.save(newOB);
-                pendingCart.getOrderBooks().add(newOB);
-                cartRepository.save(pendingCart);
-                return newOB;
-            }else{
-                throw new CustomException("Book already exist in pending cart");
-            }
+            pendingCart.getOrderBooks().remove(orderBook);
+            orderBook.setQuantity(orderBook.getQuantity()+1);
+            orderBook.setFinalPrice(orderBook.getBook().getDiscountedPrice().multiply(BigDecimal.valueOf(orderBook.getQuantity())));
+            orderBook = orderBookRepository.save(orderBook);
+            pendingCart.getOrderBooks().add(orderBook);
+            pendingCart.setTotalPrice(calculateTotalPrice(pendingCart.getOrderBooks()));
+            cartRepository.save(pendingCart);
+            return orderBook;
         }
     }
 
-     */
+    public void decrementBookQtyInCart(String userId, Book book) {
+    }
+
+    @Transactional(readOnly = false)
+    public void resetCart(String userId, Long cartId) {
+        Optional<Cart> pendingCartOptional = cartRepository.findById(cartId);
+        if( pendingCartOptional.isPresent() ){
+            for( OrderBook orderBook : orderBookRepository.findAllByCartId(cartId)){
+                orderBookRepository.delete(orderBook);
+            }
+            Cart cart = pendingCartOptional.get();
+            cart.setTotalPrice(BigDecimal.ZERO);
+            cart.setOrderBooks(new ArrayList<>());
+            cartRepository.save(cart);
+        }else{
+            throw new CustomException("Error in resetting cart");
+        }
+    }
 
 
 
 
     /*
-
     @Transactional(readOnly = true)
     public Cart getCart(String userId){
         Cart cart = cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
@@ -152,11 +162,7 @@ public class CartService {
     }//getCart
 
     private BigDecimal calculateTotalPrice(List<CartItem> cartItems) {
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        for(CartItem cartItem : cartItems){
-            totalPrice = totalPrice.add(cartItem.getFinalPrice().multiply(BigDecimal.valueOf(cartItem.getOrderQty())));
-        }
-        return totalPrice;
+
     }
 
     @Transactional(readOnly = true)
@@ -169,7 +175,7 @@ public class CartService {
         }
     }  //getCartItems
 
-    @Transactional(readOnly = false)
+
     public Cart addBookToCart(Book book, String userId) throws CustomException, BookNotFoundException {
         User user = userRepository.findById(userId);
         Cart returnCart= new Cart();
