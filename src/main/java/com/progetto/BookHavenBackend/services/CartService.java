@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,11 @@ public class CartService {
 
     @Autowired
     OrderBookRepository orderBookRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private PaymentInformationRepository paymentInformationRepository;
 
     @Transactional(readOnly = true)
     public Cart getPendingCart(String userId) throws UserNotFoundException {
@@ -145,160 +152,38 @@ public class CartService {
         }
     }
 
-
-
-
-    /*
-    @Transactional(readOnly = true)
-    public Cart getCart(String userId){
-        Cart cart = cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
-        if (cart != null) {
-            BigDecimal totalPrice = calculateTotalPrice(cart.getCartItems());
-            cart.setTotalPrice(totalPrice);
-            return cart;
-        } else {
-            throw new CustomException("Cart not found");
-        }
-    }//getCart
-
-    private BigDecimal calculateTotalPrice(List<CartItem> cartItems) {
-
-    }
-
-    @Transactional(readOnly = true)
-    public List<CartItem> getCartItems(String userId) {
-        Cart cart = cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
-        if (cart != null) {
-            return cart.getCartItems();
-        } else {
-            throw new CustomException("Cart not found");
-        }
-    }  //getCartItems
-
-
-    public Cart addBookToCart(Book book, String userId) throws CustomException, BookNotFoundException {
-        User user = userRepository.findById(userId);
-        Cart returnCart= new Cart();
-        if (book == null ) {
-            throw new CustomException("Book is required.");
-        }else{
-            Cart pendingCart = cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
-            if(pendingCart==null){
-                pendingCart = new Cart();
-                pendingCart.setUser(user);
-            }
-
-            Optional<CartItem> cartItemOptional = cartItemRepository.findByUserIdAndBookIdAndCartId(user.getId(), book.getId(), pendingCart.getId());
-            if (cartItemOptional.isPresent()) {
-                   throw new CustomException("Book is already in cart");
-            } else {
-                Optional<Book> bookOptional = bookRepository.findById(book.getId());
-                if(bookOptional.isPresent()){
-                    Book bookToAdd= bookOptional.get();
-                    CartItem newCartItem = new CartItem();
-                    newCartItem.setBook(bookToAdd);
-                    newCartItem.setUser(user);
-                    newCartItem.setCart(pendingCart);
-                    newCartItem.setFinalPrice(newCartItem.getFinalPrice());
-                    newCartItem.setOrderQty(1);
-                    CartItem newItem= cartItemRepository.save(newCartItem);
-                    pendingCart.getCartItems().add(newItem);
-                    pendingCart.setTotalPrice(pendingCart.getTotalPrice().add(newCartItem.getFinalPrice()));
-                    returnCart=  cartRepository.save(pendingCart);
-                }else {
-                    throw new BookNotFoundException();
-                }
-            }
-        }
-        return returnCart;
-    }//addBookToCart
-
-    @Transactional(readOnly = false)
-    public Cart removeBookFromCart(Book book, String userId) throws CustomException, BookNotFoundException {
-        Cart returnCart = new Cart();
-        if (book == null ) {
-            throw new CustomException("Book is required.");
-        }else {
-            User user = userRepository.findById(userId);
-
-            Optional<Cart> cartOptional = Optional.ofNullable(cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING));
-            if (!cartOptional.isPresent()) {
-                throw new CustomException("Cart doesn't exist.");
-            } else {
-                Cart pendingCart = cartOptional.get();
-                Optional<CartItem> cartItemOptional = cartItemRepository.findByUserIdAndBookIdAndCartId(user.getId(), book.getId(), pendingCart.getId());
-                if (!cartItemOptional.isPresent()) {
-                    throw new CustomException("Book is not found in cart");
-                } else {
-                    CartItem bookToRemove = cartItemOptional.get();
-                    cartItemRepository.delete(bookToRemove);
-                    pendingCart.getCartItems().remove(bookToRemove);
-                    pendingCart.setTotalPrice(pendingCart.getTotalPrice().subtract(bookToRemove.getFinalPrice()));
-                    cartRepository.save(pendingCart);
-                    returnCart = pendingCart;
-                }
-            }
-        }
-        return returnCart;
-    }//removeBookFromCart
-
-    public void incrementBookQtyInCart(String userId, Book book) throws BookNotFoundException {
-        Cart cart = cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
-        Optional<CartItem> cartItemOptional = cartItemRepository.findByUserIdAndBookIdAndCartId(userId, book.getId(), cart.getId());
-
-        if (cart != null){
-            CartItem updatedItem = new CartItem();
-            updatedItem.setId(cartItemOptional.get().getId());
-            updatedItem.setBook(book);
-            updatedItem.setCart(cart);
-            updatedItem.setUser( userRepository.findById(userId));
-            updatedItem.setFinalPrice(cartItemOptional.get().getFinalPrice());
-            updatedItem.setOrderQty(cartItemOptional.get().getOrderQty()+1);
-            cart.getCartItems().add(updatedItem);
-            cart.setTotalPrice(cart.getTotalPrice().add(updatedItem.getFinalPrice()));
-            cartItemRepository.save(updatedItem);
-            cartRepository.save(cart);
-        }else{
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error in incrementing book quantity in cart");
-        }
-    }//incrementBookQtyInCart
-
-
-    public void decrementBookQtyInCart(String userId, Book book) throws BookNotFoundException {
-        Cart cart = cartRepository.findByUserIdAndOrderStatus(userId, OrderStatus.PENDING);
-        Optional<CartItem> cartItemOptional = cartItemRepository.findByUserIdAndBookIdAndCartId(userId, book.getId(), cart.getId());
-
-        if (cart != null){
-            CartItem updatedItem = new CartItem();
-            updatedItem.setId(cartItemOptional.get().getId());
-            updatedItem.setBook(book);
-            updatedItem.setUser( userRepository.findById(userId));
-            updatedItem.setCart(cart);
-            updatedItem.setFinalPrice(cartItemOptional.get().getFinalPrice());
-            if( cartItemOptional.get().getOrderQty()-1 == 0 ){
-                removeBookFromCart(book, userId);
+    @Transactional(readOnly = false )
+    public Order checkout(String userId, OrderForm orderForm) {
+        Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
+        Optional<PaymentInformation> paymentInformationOptional = paymentInformationRepository.findById(orderForm.getCardId());
+        if(paymentInformationOptional.isPresent()){
+            if( validPaymentMethod(paymentInformationOptional.get())){
+                pendingCart.setCartStatus(OrderStatus.PAID);
+                pendingCart= cartRepository.save(pendingCart);
             }else{
-                updatedItem.setOrderQty(cartItemOptional.get().getOrderQty()-1);
-                cart.getCartItems().add(updatedItem);
-                cart.setTotalPrice(cart.getTotalPrice().subtract(updatedItem.getFinalPrice()));
-                cartItemRepository.save(updatedItem);
-                cartRepository.save(cart);
+                throw new CustomException("Payment method not valid");
             }
         }else{
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error in decrementing book quantity in cart");
+            throw new CustomException("Payment method is required");
         }
-    }//decrementBookQtyInCart
 
-     */
-
-
-
-    /*
-    public Cart checkout(String userId, Cart cart) {
-        Cart cartCheckout = cartRepository.findByIdAndUserIdAndOrderStatus(cart.getId(), userId, OrderStatus.PENDING);
-
-        return null;
+        if( orderForm.getRecipientName()!=null && orderForm.getShippingAddress() != null){
+            Order newOrder = new Order();
+            newOrder.setCart(pendingCart);
+            newOrder.setDateTime(LocalDateTime.now());
+            newOrder.setOrderStatus(OrderStatus.PROCESSING);
+            newOrder.setRecipientName(orderForm.getRecipientName());
+            newOrder.setShippingAddress(orderForm.getShippingAddress());
+            newOrder.setPaymentInformation(newOrder.getPaymentInformation());
+            orderRepository.save(newOrder);
+            return newOrder;
+        } else {
+            throw new CustomException("Error in checking out.");
+        }
     }
 
-     */
+    private boolean validPaymentMethod(PaymentInformation paymentInformation) {
+        return LocalDate.now().isBefore(paymentInformation.getExpirationDate());
+    }
+
 }//CartService

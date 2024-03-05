@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class Order {
     private String recipientName;
 
     @Column(name = "address")
-    private String address;
+    private String shippingAddress;
 
     @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "payment_information_id")

@@ -1,9 +1,6 @@
 package com.progetto.BookHavenBackend.controllers;
 
-import com.progetto.BookHavenBackend.entities.Book;
-import com.progetto.BookHavenBackend.entities.Cart;
-import com.progetto.BookHavenBackend.entities.OrderBook;
-import com.progetto.BookHavenBackend.entities.OrderStatus;
+import com.progetto.BookHavenBackend.entities.*;
 import com.progetto.BookHavenBackend.repositories.CartRepository;
 import com.progetto.BookHavenBackend.services.CartService;
 import com.progetto.BookHavenBackend.services.OrderBookService;
@@ -12,11 +9,13 @@ import com.progetto.BookHavenBackend.support.exceptions.CustomException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -86,11 +85,17 @@ public class CartController {
         removeBookFromCart(book, userId);
     }
 
-    /*
-    @RequestMapping(value = "/{userId}/decrement-item-quantity", method = RequestMethod.PUT)
-    public Cart checkout(@PathVariable("userId") String userId, @Valid @RequestBody Cart cart) {
-        return cartService.checkout(userId, cart);
+
+    //@PostMapping("/{userId}/checkout")
+    @RequestMapping(value ="/{userId}/checkout", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity checkout(@PathVariable("userId") String userId,
+                         @RequestBody OrderForm orderform) {
+        try{
+            return new ResponseEntity<>( cartService.checkout(userId, orderform), HttpStatus.OK);
+        }catch(CustomException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Checkout failed. Please try again later!", e);
+        }
     }
-     */
+
 
 }

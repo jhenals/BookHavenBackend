@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,5 +29,9 @@ public class PaymentInformation {
 
     @Column(name = "cvv", nullable = false)
     private String cvv; //make this decrypted
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }

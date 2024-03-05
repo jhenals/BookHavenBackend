@@ -49,6 +49,13 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<Book> wishlist = new LinkedHashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "payment_information_id")
+    private PaymentInformation paymentInformation;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<PaymentInformation> paymentInformations = new LinkedHashSet<>();
+
 
 /*
     public User(User user) {
