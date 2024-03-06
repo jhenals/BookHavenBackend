@@ -1,5 +1,6 @@
 package com.progetto.BookHavenBackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonIgnore
     private Category category;
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
@@ -57,18 +59,9 @@ public class Book {
 
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user;
-
-
-//In this example, discountedPrice is marked as @Transient,
-    // indicating that it won't be persisted in the database.
-    // The getDiscountedPrice method calculates the discounted price based on the price and discount fields.
-
-    // non deve essere memorizzato in modo persistente nel database,
-    // puoi marcarlo con l'annotazione @Transient nella tua classe di entità.
-    // Ciò indica a JPA (Java Persistence API) di ignorare quel campo durante le operazioni di persistenza.
-
 
     public BigDecimal getDiscountedPrice() {
         if (price != null && discount != null) {

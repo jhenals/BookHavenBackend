@@ -1,5 +1,7 @@
 package com.progetto.BookHavenBackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +17,6 @@ import java.util.*;
 @Table(name = "user")
 public class User {
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private String id;
 
@@ -49,13 +50,14 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<Book> wishlist = new LinkedHashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "payment_information_id")
-    private PaymentInformation paymentInformation;
-
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<PaymentInformation> paymentInformations = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<Order> archivedOrder = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<Address> addresses = new LinkedHashSet<>();
 
 /*
     public User(User user) {

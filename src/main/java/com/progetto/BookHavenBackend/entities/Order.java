@@ -1,5 +1,9 @@
 package com.progetto.BookHavenBackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +22,7 @@ public class Order {
 
     @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "cart_id")
+    @JsonIgnoreProperties({"user"})
     private Cart cart;
 
     @Column(name = "date_time")
@@ -34,7 +39,17 @@ public class Order {
     private String shippingAddress;
 
     @OneToOne(orphanRemoval = true)
+    @JsonIgnore
     @JoinColumn(name = "payment_information_id")
     private PaymentInformation paymentInformation;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Cart getCart(){
+        return this.cart;
+    }
 
 }

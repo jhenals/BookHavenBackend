@@ -1,5 +1,7 @@
 package com.progetto.BookHavenBackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +33,11 @@ public class PaymentInformation {
     private String cvv; //make this decrypted
 
     @ManyToOne
+    @JsonManagedReference
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "is_default")
+    private Boolean isDefault;
 
 }

@@ -11,6 +11,5 @@ public class OrderForm {
 
     private String recipientName;
     private String shippingAddress;
-
     private Long cardId;
 }

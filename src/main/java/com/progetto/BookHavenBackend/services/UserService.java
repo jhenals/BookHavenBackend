@@ -1,7 +1,11 @@
 package com.progetto.BookHavenBackend.services;
 
+import com.progetto.BookHavenBackend.entities.Address;
 import com.progetto.BookHavenBackend.entities.Book;
+import com.progetto.BookHavenBackend.entities.PaymentInformation;
 import com.progetto.BookHavenBackend.entities.User;
+import com.progetto.BookHavenBackend.repositories.AddressRepository;
+import com.progetto.BookHavenBackend.repositories.PaymentInformationRepository;
 import com.progetto.BookHavenBackend.repositories.UserRepository;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
 import com.progetto.BookHavenBackend.support.exceptions.UserNotFoundException;
@@ -23,6 +27,10 @@ import java.util.*;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private PaymentInformationRepository paymentInformationRepository;
 
 
     @Transactional(readOnly=false, propagation= Propagation.REQUIRED)
@@ -116,5 +124,17 @@ public class UserService {
             wishlist = customer.getWishlist();
         }
         return wishlist;
+    }
+
+    public Address getDefaultAddress(String userId) {
+        return addressRepository.findDefaultByUserId(userId);
+    }
+
+    public List<Address> getAllAddresses(String userId) {
+        return addressRepository.findAllByUserId(userId);
+    }
+
+    public List<PaymentInformation> getAllPaymentMethod(String userId){
+        return paymentInformationRepository.findAllByUserId(userId);
     }
 }

@@ -154,6 +154,7 @@ public class CartService {
 
     @Transactional(readOnly = false )
     public Order checkout(String userId, OrderForm orderForm) {
+        User user = userRepository.findById(userId);
         Cart pendingCart = cartRepository.findByUserIdAndCartStatus(userId, OrderStatus.PENDING);
         Optional<PaymentInformation> paymentInformationOptional = paymentInformationRepository.findById(orderForm.getCardId());
         if(paymentInformationOptional.isPresent()){
@@ -174,8 +175,11 @@ public class CartService {
             newOrder.setOrderStatus(OrderStatus.PROCESSING);
             newOrder.setRecipientName(orderForm.getRecipientName());
             newOrder.setShippingAddress(orderForm.getShippingAddress());
-            newOrder.setPaymentInformation(newOrder.getPaymentInformation());
+            //newOrder.setPaymentInformation(newOrder.getPaymentInformation());
+            newOrder.setUser(user);
             orderRepository.save(newOrder);
+            Cart newPendingCart = new Cart();
+            cartRepository.save(newPendingCart);
             return newOrder;
         } else {
             throw new CustomException("Error in checking out.");

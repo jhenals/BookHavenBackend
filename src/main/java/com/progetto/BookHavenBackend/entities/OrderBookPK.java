@@ -1,6 +1,7 @@
 package com.progetto.BookHavenBackend.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -14,13 +15,13 @@ import java.io.Serializable;
 @Setter
 @Embeddable
 public class OrderBookPK implements Serializable {
-    @JsonBackReference
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
+    @JsonManagedReference
     private Book book;
 
 }

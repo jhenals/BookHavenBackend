@@ -1,9 +1,10 @@
 package com.progetto.BookHavenBackend.controllers;
 
 import com.progetto.BookHavenBackend.configurations.KeycloakConfig;
+import com.progetto.BookHavenBackend.entities.Address;
 import com.progetto.BookHavenBackend.entities.Book;
+import com.progetto.BookHavenBackend.entities.PaymentInformation;
 import com.progetto.BookHavenBackend.entities.User;
-import com.progetto.BookHavenBackend.services.AdminService;
 import com.progetto.BookHavenBackend.services.KeycloakService;
 import com.progetto.BookHavenBackend.services.UserService;
 import com.progetto.BookHavenBackend.support.ResponseMessage;
@@ -18,8 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import javax.ws.rs.Path;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 @RestController
@@ -30,9 +31,6 @@ public class UserController {
 
     @Autowired
     KeycloakConfig keycloakUtil;
-
-    @Autowired
-    AdminService adminService;
 
     @Autowired
     KeycloakService keycloakService;
@@ -51,6 +49,22 @@ public class UserController {
                 keycloak.realm(realm).users().list();
         return keycloakService.mapUsers(userRepresentations);
     }
+
+    @GetMapping("/api/v1/{userId}/default-address")
+    public Address getDefaultAddress(@PathVariable("userId") String userId){
+        return userService.getDefaultAddress(userId);
+    }
+
+    @GetMapping("/api/v1/{userId}/addresses")
+    public List<Address> getAllAddress(@PathVariable("userId") String userId){
+        return userService.getAllAddresses(userId);
+    }
+
+    @GetMapping("/api/v1/{userId}/payment-methods")
+    public List<PaymentInformation> getAllPaymentMethod(@PathVariable("userId") String userId){
+        return userService.getAllPaymentMethod(userId);
+    }
+
 
     @GetMapping("/{userId}/wishlist")
     public Set<Book> getWishlist(@PathVariable("userId") String userId){

@@ -29,8 +29,6 @@ public class Cart {
     private BigDecimal totalPrice;
 
     @OneToMany(mappedBy = "pk.cart")
-    @JsonManagedReference
-    @Valid
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<OrderBook> orderBooks = new ArrayList<>();
 
@@ -39,6 +37,9 @@ public class Cart {
     private OrderStatus cartStatus;
 
     public Cart(){
+        this.cartStatus = OrderStatus.PENDING;
+        this.totalPrice = BigDecimal.ZERO;
+        this.orderBooks = new ArrayList<>();
     }
 
 

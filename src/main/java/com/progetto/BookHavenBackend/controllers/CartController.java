@@ -1,7 +1,7 @@
 package com.progetto.BookHavenBackend.controllers;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.progetto.BookHavenBackend.entities.*;
-import com.progetto.BookHavenBackend.repositories.CartRepository;
 import com.progetto.BookHavenBackend.services.CartService;
 import com.progetto.BookHavenBackend.services.OrderBookService;
 import com.progetto.BookHavenBackend.support.exceptions.BookNotFoundException;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -42,7 +41,6 @@ public class CartController {
     public void resetCart(@PathVariable("userId") String userId) throws UserNotFoundException {
         Cart pendingCart = getPendingCart(userId);
         cartService.resetCart(userId, pendingCart.getId());
-
     }
 
     @PostMapping("/{userId}")
@@ -59,7 +57,7 @@ public class CartController {
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity removeBookFromCart(@RequestBody Book book, @Valid @PathVariable("userId") String userId ) {
+    public ResponseEntity removeBookFromCart(@RequestBody  Book book, @Valid @PathVariable("userId") String userId ) {
         try{
             return new ResponseEntity<>( cartService.removeBookFromCart(book, userId), HttpStatus.OK);
         } catch (BookNotFoundException | UserNotFoundException e) {
@@ -69,24 +67,23 @@ public class CartController {
         }
     }
 
-    @RequestMapping(value = "/{userId}/increment-item-quantity", method = RequestMethod.PUT)
-    public ResponseEntity incrementBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
+    @RequestMapping(value = "/{userId}/increase-item-quantity", method = RequestMethod.PUT, consumes = {"application/json"})
+    public ResponseEntity increaseBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
         try{
             return new ResponseEntity<>( cartService.incrementBookQtyInCart(userId, book), HttpStatus.OK);
         }catch(CustomException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book quantity can not be incremented!", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book quantity can not be increased!", e);
         }
 
     }
 
 
-    @RequestMapping(value = "/{userId}/decrement-item-quantity", method = RequestMethod.PUT)
-    public void decrementBookQtyInCart(@PathVariable("userId") String userId, @Valid @RequestBody Book book) throws BookNotFoundException {
+    @RequestMapping(value = "/{userId}/decrease-item-quantity", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void decreaseBookQtyInCart(@PathVariable("userId") String userId, @RequestBody Book book) throws BookNotFoundException {
         removeBookFromCart(book, userId);
     }
 
 
-    //@PostMapping("/{userId}/checkout")
     @RequestMapping(value ="/{userId}/checkout", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity checkout(@PathVariable("userId") String userId,
                          @RequestBody OrderForm orderform) {
