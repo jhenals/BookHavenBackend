@@ -32,7 +32,6 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    @JsonIgnore
     private Category category;
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)

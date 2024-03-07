@@ -134,7 +134,4 @@ public class UserService {
         return addressRepository.findAllByUserId(userId);
     }
 
-    public List<PaymentInformation> getAllPaymentMethod(String userId){
-        return paymentInformationRepository.findAllByUserId(userId);
-    }
 }

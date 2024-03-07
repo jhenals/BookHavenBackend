@@ -29,15 +29,27 @@ public class PaymentInformation {
     @Column(name = "expiration_date", nullable = false)
     private LocalDate expirationDate;
 
+    @Column(name = "card_type")
+    private String cardType;
+
     @Column(name = "cvv", nullable = false)
     private String cvv; //make this decrypted
 
     @ManyToOne
-    @JsonManagedReference
     @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "is_default")
     private Boolean isDefault;
 
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+        if(cardNumber.startsWith("4")){
+            this.cardType = "Visa";
+        }else if( cardNumber.matches("^5[1-5].*")) {
+            this.cardType = "MasterCard";
+        }else{
+            this.cardType = "Unknown";
+        }
+    }
 }

@@ -21,7 +21,6 @@ public class OrderBookPK implements Serializable {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
-    @JsonManagedReference
     private Book book;
 
 }

@@ -6,6 +6,7 @@ import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.PaymentInformation;
 import com.progetto.BookHavenBackend.entities.User;
 import com.progetto.BookHavenBackend.services.KeycloakService;
+import com.progetto.BookHavenBackend.services.PaymentService;
 import com.progetto.BookHavenBackend.services.UserService;
 import com.progetto.BookHavenBackend.support.ResponseMessage;
 import com.progetto.BookHavenBackend.support.exceptions.MailUserAlreadyExistsException;
@@ -35,6 +36,9 @@ public class UserController {
     @Autowired
     KeycloakService keycloakService;
 
+    @Autowired
+    PaymentService paymentService;
+
     @Value("${realm}")
     private String realm;
 
@@ -62,7 +66,7 @@ public class UserController {
 
     @GetMapping("/api/v1/{userId}/payment-methods")
     public List<PaymentInformation> getAllPaymentMethod(@PathVariable("userId") String userId){
-        return userService.getAllPaymentMethod(userId);
+        return paymentService.getAllPaymentMethod(userId);
     }
 
 

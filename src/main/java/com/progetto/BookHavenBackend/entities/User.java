@@ -51,9 +51,6 @@ public class User {
     private Set<Book> wishlist = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
-    private Set<PaymentInformation> paymentInformations = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<Order> archivedOrder = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
