@@ -2,6 +2,7 @@ package com.progetto.BookHavenBackend.controllers;
 
 import com.progetto.BookHavenBackend.entities.Book;
 import com.progetto.BookHavenBackend.entities.Category;
+import com.progetto.BookHavenBackend.entities.Inventory;
 import com.progetto.BookHavenBackend.entities.User;
 import com.progetto.BookHavenBackend.repositories.InventoryRepository;
 import com.progetto.BookHavenBackend.services.BookService;

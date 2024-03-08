@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,8 +48,17 @@ public class BookService {
 
 
     public List<Book> getBestSellingBooks() {
-        List<Book> bestSellers = bookRepository.sortByNumberOfBuyers();
+        List<Inventory> inventoryList = inventoryRepository.findAllByOrderByNumPurchasesDesc();
+        List<Book> bestSellers = new ArrayList<>();
+        for( Inventory inv : inventoryList ){
+            Book book = extractBook(inv);
+            bestSellers.add(book);
+        }
         return bestSellers.size() > 10 ? bestSellers.subList(0, 10) : bestSellers; // If there are more than 10 best sellers, return the first 10.
+    }
+
+    private Book extractBook(Inventory inv){
+        return bookRepository.findBookById(inv.getId());
     }
 
     public Book addNewBook(Book book) {
